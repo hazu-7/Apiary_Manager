@@ -1,5 +1,5 @@
 #!/bin/python3
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -71,14 +71,14 @@ with app.app_context():
             hive_data = {
                 'id': hive.id,
                 'location': hive.location,
-                'last_checked': hive.last_checked,
+                'last_inspection': hive.last_inspection,
                 'varoa_found': hive.varoa_found
             }
             output.append(hive_data)
         
-        return(jsonify({'hives:':output}))
+        return jsonify({'hives':output})
     
-    @app.route('/api/queens', methods=['GET'])
+    @app.route('/api/queens', methods=['GET', 'POST'])
     def get_queens():
         queens = Queen.query.all()
         output = []
@@ -104,6 +104,13 @@ with app.app_context():
             }
             output.append(location_data)
         return jsonify({'locations' : output})
+    
+    @app.route('/api/data', methods=['GET', 'POST'])
+    def api_data():
+        data = {'name': 'John', 'age': 25}
+        return jsonify(data)
+
+
 
 if __name__ == '__main__':  
-   app.run()  
+   app.run(debug=True)
