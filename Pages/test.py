@@ -1,116 +1,138 @@
 #!/bin/python3
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import func
+import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 db = SQLAlchemy(app)
-
-     
 
 
 with app.app_context():
 
     class Hive(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        last_inspection = db.Column(db.String(120), nullable=False)
-        max_box_size = db.Column(db.String(10), nullable=False)
+        last_inspection = db.Column(db.DateTime, default=db.func.now())
+        box_size = db.Column(db.String(10), nullable=False)
         frames = db.Column(db.String(120), nullable=False)
-        varoa_found = db.Column(db.Integer)
-        location = db.Column(db.String(120))
+        varroa_found = db.Column(db.Integer)
+        location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
         queen = db.relationship("Queen", backref="hive", uselist=False)
-            
+
     class Queen(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        hive_id = db.Column(db.Integer, db.ForeignKey('hive.id'))
+        hive_id = db.Column(db.Integer, db.ForeignKey("hive.id"))
         breed = db.Column(db.String(20), nullable=False)
         intro_date = db.Column(db.String(120))
-        colour = db.Column(db.String(20)) 
-        
+        colour = db.Column(db.String(20))
+
     class Location(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        number_of_hives = db.Column(db.Integer)
+        name = db.Column(db.String(120))
+        hives = db.relationship("Hive", backref="at_location", lazy=True)
         coords = db.Column(db.String(120))
-    
+
+        @property
+        def number_of_hives(self):
+            return len(self.hives)
+
     class Equipment(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         feed = db.Column(db.Integer)
         prot_hat = db.Column(db.Integer)
         suit = db.Column(db.Integer)
-            
+
     db.create_all()
 
-    def add_hive(**kwargs):
-        new_hive = Hive(**kwargs)
-        db.session.add(new_hive)
-        db.session.commit()
+
+
+    @app.route("/api/hives/add", methods=["POST"])
+    def add_hive():
+        data = request.get_json()
         
+        last_inspection = data.get("last_inspection")
+        box_size = data.get("box_size")
+        frames = data.get("frames")
+        varroa_found = data.get("varroa_found")
+        location_id = data.get("location_id")
+        new_hive = Hive(box_size=box_size, frames=frames, location_id=location_id, varroa_found=varroa_found, last_inspection=last_inspection)   
+        try:     
+            db.session.add(new_hive)
+            db.session.commit()
+            return jsonify({"message": "Hive added successfully", "id": new_hive.id}), 201
+        except Exception as e:
+            db.session.rollback()
+            print(f"error {e}")
+            return jsonify({"message": "An error has occured."}),400
+
     def remove_hive(hive_id):
-        to_be_removed_hive = Hive.query.id(hive_id) 
+        to_be_removed_hive = Hive.query.id(hive_id)
         db.session.remove(to_be_removed_hive)
         db.session.commit()
-    
-    def add_queen(**kwargs ):
+
+    def add_queen(**kwargs):
         new_queen = Queen(**kwargs)
         db.session.add(new_queen)
         db.session.commit()
-    
-    
-        
-    add_queen(breed = "brit", intro_date = "12,1341", colour="blue", hive_id = 1)
-    add_hive(last_inspection = "12/10/2024", max_box_size="10", frames="Honey=4 Polen=2 Brood=3", varoa_found=0, location="Guweya")
-    
-    @app.route('/api/hives', methods=['GET'])
+
+    def add_location(**kwargs):
+        new_location = Location(**kwargs)
+        db.session.add(new_location)
+        db.session.commit()
+
+    add_queen(breed="brit", intro_date="12,1341", colour="blue", hive_id=1)
+
+    @app.route("/api/hives", methods=["GET"])
     def get_hives():
         hives = Hive.query.all()
         # Convert database objects into a list of dictionaries
         output = []
         for hive in hives:
             hive_data = {
-                'id': hive.id,
-                'location': hive.location,
-                'last_inspection': hive.last_inspection,
-                'varoa_found': hive.varoa_found
+                "id": hive.id,
+                "last_inspection": hive.last_inspection,
+                "varroa_found": hive.varroa_found,
             }
             output.append(hive_data)
-        
-        return jsonify({'hives':output})
-    
-    @app.route('/api/queens', methods=['GET', 'POST'])
+
+        return jsonify({"hives": output})
+
+    @app.route("/api/queens", methods=["GET"])
     def get_queens():
         queens = Queen.query.all()
         output = []
         for queen in queens:
             queen_data = {
-                'id' : queen.id,
-                'breed':queen.breed,
-                'intro_date':queen.intro_date,
-                'colour':queen.colour
+                "id": queen.id,
+                "breed": queen.breed,
+                "intro_date": queen.intro_date,
+                "colour": queen.colour,
             }
             output.append(queen_data)
-        return jsonify({'queens':output})
-    
-    @app.route('/api/locations', methods=['GET'])
+        return jsonify({"queens": output})
+
+    @app.route("/api/locations", methods=["GET"])
     def get_locations():
         locations = Location.query.all()
-        output =[]
+        output = []
         for loc in locations:
             location_data = {
-                'id' : loc.id,
-                'number_of_hives' : loc.number_of_hives,
-                'coords' : loc.coords,
+                "id": loc.id,
+                "number_of_hives": loc.number_of_hives,
+                "coords": loc.coords,
+                "hives": [{
+                    "id":h.id,
+                    "last_inspection":h.last_inspection,
+                    "varroa_found":h.varroa_found,
+                }for h in loc.hives]
             }
             output.append(location_data)
-        return jsonify({'locations' : output})
-    
-    @app.route('/api/data', methods=['GET', 'POST'])
-    def api_data():
-        data = {'name': 'John', 'age': 25}
-        return jsonify(data)
+        return jsonify({"locations": output})
 
 
-
-if __name__ == '__main__':  
-   app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)

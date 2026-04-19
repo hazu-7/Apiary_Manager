@@ -1,37 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apiary Manager | Dashboard</title>
-    <link rel="stylesheet" href="../style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
     <div class="container">
-        <nav class="sidebar">
-            <div class="logo">🐝 MyHive</div>
-            <ul>
-                <li class="active">Dashboard</li>
-                <li>Hives</li>
-                <li>Queens</li>
-                <li>Locations</li>
-                <li>Inspections</li>
-            </ul>
-        </nav>
+      <nav class="sidebar">
+        <div class="logo">🐝 MyHive</div>
+        <ul>
+          <li class="active">Dashboard</li>
+          <li>Hives</li>
+          <li>Queens</li>
+          <li>Locations</li>
+          <li>Inspections</li>
+        </ul>
+      </nav>
 
-        <main class="content">
-            <header>
-                <h1>Hives </h1>
-                <input id="search-box">
-                <button id="addHiveBtn" class="btn-primary">+ Add New Hive</button>
-            </header>
-
-            <section class="all-hives hive-grid">
-            </section>
-
-            
-        </main>
+      <main class="content">
+        <header>
+          <h1>Hives</h1>
+          <button id="addHiveBtn" class="btn-primary">+ Add New Hive</button>
+        </header>
+        <div class="options">
+          <select name="sort">
+            <option value="id">ID</option>
+            <option value="location">Location</option>
+            <option value="queen">Queen Status</option>
+            <option value="box-size">Box Size</option>
+          </select>
+          <input id="search-box" />
+        </div>
+        <section class="all-hives hive-grid"></section>
+      </main>
     </div>
-   <script src="hives.js"></script>
-</body>
+    <script type="module" src="hives.js"></script>
+  </body>
 </html>

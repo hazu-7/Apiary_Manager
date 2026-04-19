@@ -78,6 +78,7 @@ header {
     cursor: pointer;
 }
 
+
 /* Dashboard Cards */
 .stats-grid {
     display: grid;
@@ -91,7 +92,7 @@ header {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-   }
+}
 
 .stat-card h3 {
     font-size: 0.9rem;
@@ -104,14 +105,96 @@ header {
     margin-top: 10px;
 }
 
-.alert-text {
-    color: var(--alert-red);
+#search-box {
+    flex:1;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background-color: var(--bg-light);
+    border: 2px var(--dark-slate) solid;
+    max-width: 50%;
 }
+
+.options {
+    display: flex;
+    gap: 30px;
+    padding:0 5px;
+    justify-content: space-between;
+}
+
+select{
+    flex:1;
+    flex-grow:0.05;
+    background-color: var(--bg-light);
+    border: 2px var(--dark-slate) solid;
+    border-radius: 10px;
+    padding:1px 4px;
+    
+}
+
+
+
+
+.add_hive_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: 2;                 
+    display: flex;
+    justify-content: center;        
+    align-items: center;            
+}
+.add_hive_content {
+    display:flex;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    z-index: 3;                  /* On the very top */
+    width: 60vw;
+    height: 50vh;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 3px solid var(--primary-gold);
+}
+
+
+
+
+
+
+.inputs{
+    display:flex;
+    flex-direction: column;
+    flex:1;
+}
+
+.upload_image{
+    flex:1;
+    display: flex;
+    align-items: center;
+    flex-grow: 0.5;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* Hive Grid */
 .hive-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    border-top: 5px solid var(--primary-gold);
+    border-radius: 10px;
+    margin: 5px;
+    padding: 5px;
     gap: 1px;
 }
 
@@ -130,14 +213,14 @@ header {
     border-radius: 10px;
 }
 
-img{
+img {
     border-radius: 10px;
 }
 
-#search-box{
-    padding: 2px 10px;
-    border-radius: 10px;
-    width:500px;
-    background-color: var(--bg-light);
-    border: 2px black solid;
-}
+
+
+
+
+
+
+
