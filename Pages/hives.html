@@ -36,6 +36,41 @@
         <section class="all-hives hive-grid"></section>
       </main>
     </div>
+    <div class="add_hive_overlay" style="display:none">
+    <div class="add_hive_content">
+        <div class="upload_image">
+            <img src="../images/Pasted image.png" width=100%>
+        </div>
+        <div class="inputs">
+                <ul>
+                    <span>Location</span>
+                    <input list="locations" class="add_hive_input">
+                    <datalist id="locations">
+                    </datalist>
+                </ul>
+                 <ul>
+                    <span>Box Size</span>
+                    <input class="add_hive_input">
+                </ul>
+                <ul>
+                    <span>Frames</span>
+                    <input class="add_hive_input">
+                </ul>
+
+                 <ul>
+                    <span>Date</br>Established</span>
+                    <input type="date" class="add_hive_input">
+                </ul>
+                 <ul>
+                    <span>Queen</span>
+                    <input class="add_hive_input">
+                </ul>                
+                <ul>
+                  <button class="btn-primary" id="post_hive_to_database">Add Hive</button>
+                </ul>
+        </div>
+    </div>
+    </div>
     <script type="module" src="hives.js"></script>
   </body>
 </html>

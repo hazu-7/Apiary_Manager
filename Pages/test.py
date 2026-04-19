@@ -2,8 +2,9 @@
 from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-import datetime
+from datetime import datetime
 from flask_cors import CORS
+
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +20,6 @@ with app.app_context():
         last_inspection = db.Column(db.DateTime, default=db.func.now())
         box_size = db.Column(db.String(10), nullable=False)
         frames = db.Column(db.String(120), nullable=False)
-        varroa_found = db.Column(db.Integer)
         location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
         queen = db.relationship("Queen", backref="hive", uselist=False)
 
@@ -48,26 +48,30 @@ with app.app_context():
 
     db.create_all()
 
-
-
     @app.route("/api/hives/add", methods=["POST"])
     def add_hive():
         data = request.get_json()
-        
-        last_inspection = data.get("last_inspection")
+        last_inspection = datetime.strptime(data.get("last_inspection"), "%Y-%m-%d")
         box_size = data.get("box_size")
         frames = data.get("frames")
-        varroa_found = data.get("varroa_found")
         location_id = data.get("location_id")
-        new_hive = Hive(box_size=box_size, frames=frames, location_id=location_id, varroa_found=varroa_found, last_inspection=last_inspection)   
-        try:     
+        new_hive = Hive(
+            box_size=box_size,
+            frames=frames,
+            location_id=location_id,
+            last_inspection=last_inspection,
+        )
+        try:
             db.session.add(new_hive)
             db.session.commit()
-            return jsonify({"message": "Hive added successfully", "id": new_hive.id}), 201
+            return (
+                jsonify({"message": "Hive added successfully", "id": new_hive.id}),
+                201,
+            )
         except Exception as e:
             db.session.rollback()
             print(f"error {e}")
-            return jsonify({"message": "An error has occured."}),400
+            return jsonify({"message": "An error has occured."}), 400
 
     def remove_hive(hive_id):
         to_be_removed_hive = Hive.query.id(hive_id)
@@ -84,7 +88,7 @@ with app.app_context():
         db.session.add(new_location)
         db.session.commit()
 
-    add_queen(breed="brit", intro_date="12,1341", colour="blue", hive_id=1)
+    # add_queen(breed="brit", intro_date="12,1341", colour="blue", hive_id=1)
 
     @app.route("/api/hives", methods=["GET"])
     def get_hives():
@@ -95,7 +99,8 @@ with app.app_context():
             hive_data = {
                 "id": hive.id,
                 "last_inspection": hive.last_inspection,
-                "varroa_found": hive.varroa_found,
+                "frames": hive.frames,
+                "location": hive.at_location.location,
             }
             output.append(hive_data)
 
@@ -121,14 +126,18 @@ with app.app_context():
         output = []
         for loc in locations:
             location_data = {
+                "name": loc.name,
                 "id": loc.id,
                 "number_of_hives": loc.number_of_hives,
                 "coords": loc.coords,
-                "hives": [{
-                    "id":h.id,
-                    "last_inspection":h.last_inspection,
-                    "varroa_found":h.varroa_found,
-                }for h in loc.hives]
+                "hives": [
+                    {
+                        "id": h.id,
+                        "last_inspection": h.last_inspection,
+                        "location": loc.name,
+                    }
+                    for h in loc.hives
+                ],
             }
             output.append(location_data)
         return jsonify({"locations": output})
