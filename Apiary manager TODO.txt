@@ -1,0 +1,8 @@
+1. Add POST queens option in add hives popup window
+2. Automate adding location when adding hive if location is not already found in location database// DONE
+3.add more info option for hives in hives page
+4.add mass select location change option
+5. add mass select delete option
+6.figure out how to sturcture adding queens/ moving queens from a hive to a different one
+7.Resturcture project file structure to be more organised/standardized
+

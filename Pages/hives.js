@@ -19,7 +19,7 @@ async function render_hives(data = hives) {
     .map(
       (hive) => `
     <div class="card" style="text-align: center">
-      <h3> ${hive.location} ${hive.id}</h3>
+      <h3> ${hive.name}</h3>
       <img src="../images/Pasted image.png" width="200">
       <div style="text-align: left; font-weight:500">
         Last Inspection: ${hive.last_inspection}
@@ -30,16 +30,16 @@ async function render_hives(data = hives) {
     .join("");
 }
 
-async function postHiveData(boxSize, locationID, frames, lastInpsection) {
+async function postHiveData(name, locationID, boxSize, frames, lastInpsection) {
   const hiveData = {
     box_size: boxSize,
     location_id: locationID,
     frames: frames,
     last_inspection: lastInpsection,
+    name: name,
   };
-
   try {
-    const response = await fetch("http://127.0.0.1:5000/api/hives/add", {
+    const response = await fetch("http://127.0.0.1:5000/api/add/hive", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,6 +59,31 @@ async function postHiveData(boxSize, locationID, frames, lastInpsection) {
   }
 }
 
+async function postLocation(name, coords) {
+  const locationData = {
+    name: name,
+    coords: coords,
+  };
+  try {
+    const response = await fetch("http://127.0.0.1:5000/api/add/location", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(locationData), // Turn the object into a string
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Success:", result.message);
+    } else {
+      console.error("Server error:", result.error);
+    }
+  } catch (error) {
+    console.error("Network error:", error);
+  }
+}
 const fuseOptions = {
   keys: ["id", "location", "last_inspection"],
   threshold: 0.3, // 0.0 is perfect match, 1.0 matches anything
@@ -86,22 +111,44 @@ sortBy.addEventListener("change", (e) => {
   if (e.target.value == "location") {
     data = locations.flatMap((loc) => loc.hives);
   }
-  console.log(data);
   render_hives(data);
 });
 
 render_hives();
 
+//Add hive popup javascript
 document.querySelector("#addHiveBtn").addEventListener("click", () => {
   const locationNames = locations.map((loc) => loc.name);
   const locationOptions = locationNames.map((loc) => `<option value="${loc}">`).join(" ");
   const datalist = document.querySelector("#locations");
+  const overlay = document.querySelector(".add_hive_overlay");
+  const post_hive_btn = document.querySelector("#post_hive_to_database");
   datalist.innerHTML = `${locationOptions}`;
-  document.querySelector(".add_hive_overlay").setAttribute("style", "display:flex");
+  overlay.setAttribute("style", "display:flex");
 
-  document.querySelector("#post_hive_to_database").addEventListener("click", () => {
+  post_hive_btn.addEventListener("click", async () => {
+    post_hive_btn.disabled = true;
     const data = [...document.querySelectorAll(".add_hive_input")].map((item) => item.value);
-    postHiveData(data[1], data[0], data[2], data[3]);
-    console.log(data);
+    if (!locationNames.includes(data[1])) {
+      await postLocation(data[1], "Undefined");
+      locations = await fetchLocations();
+    }
+
+    data[1] = locations.find((item) => item.name == data[1]).id;
+    postHiveData(data[0], data[1], data[2], data[3], data[4]);
+    overlay.setAttribute("style", "display:none");
+    render_hives();
+  });
+  //close popup if escape is pressed
+  document.addEventListener("keyup", (e) => {
+    if (e.key == "Escape") {
+      overlay.setAttribute("style", "display: none");
+    }
+  });
+  overlay.addEventListener("click", (e) => {
+    if (e.target == overlay) {
+      overlay.setAttribute("style", "display:none");
+      e.stopPropagation();
+    }
   });
 });

@@ -22,6 +22,7 @@ with app.app_context():
         frames = db.Column(db.String(120), nullable=False)
         location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
         queen = db.relationship("Queen", backref="hive", uselist=False)
+        name = db.Column(db.String(120))
 
     class Queen(db.Model):
         id = db.Column(db.Integer, primary_key=True)
@@ -48,18 +49,20 @@ with app.app_context():
 
     db.create_all()
 
-    @app.route("/api/hives/add", methods=["POST"])
+    @app.route("/api/add/hive", methods=["POST"])
     def add_hive():
         data = request.get_json()
         last_inspection = datetime.strptime(data.get("last_inspection"), "%Y-%m-%d")
         box_size = data.get("box_size")
         frames = data.get("frames")
         location_id = data.get("location_id")
+        name = data.get("name")
         new_hive = Hive(
             box_size=box_size,
             frames=frames,
             location_id=location_id,
             last_inspection=last_inspection,
+            name=name,
         )
         try:
             db.session.add(new_hive)
@@ -83,16 +86,24 @@ with app.app_context():
         db.session.add(new_queen)
         db.session.commit()
 
-    def add_location(**kwargs):
-        new_location = Location(**kwargs)
+    @app.route("/api/add/location", methods=["POST"])
+    def add_location():
+        data = request.get_json()
+        name = data.get("name")
+        coords = data.get("coords")
+        new_location = Location(
+            name=name,
+            coords=coords,
+        )
         db.session.add(new_location)
         db.session.commit()
+        return jsonify("Completed"), 201
 
     # add_queen(breed="brit", intro_date="12,1341", colour="blue", hive_id=1)
 
     @app.route("/api/hives", methods=["GET"])
     def get_hives():
-        hives = Hive.query.all()
+        hives = Hive.query.options(db.joinedload(Hive.at_location)).all()
         # Convert database objects into a list of dictionaries
         output = []
         for hive in hives:
@@ -100,7 +111,12 @@ with app.app_context():
                 "id": hive.id,
                 "last_inspection": hive.last_inspection,
                 "frames": hive.frames,
-                "location": hive.at_location.location,
+                "location": (
+                    hive.at_location.name if hive.at_location else "No Location"
+                ),
+                "name": (
+                    f"{hive.at_location.name} {hive.id}" if not hive.name else hive.name
+                ),
             }
             output.append(hive_data)
 
