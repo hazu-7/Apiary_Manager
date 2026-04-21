@@ -198,11 +198,13 @@ input {
     outline: none;
 }
 
-ul:has(>.btn-primary) {
+ul:has(>#post_hive_to_database) {
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
+
 
 
 /* Hive Grid */

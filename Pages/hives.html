@@ -37,10 +37,11 @@
         <section class="all-hives hive-grid"></section>
       </main>
     </div>
+    <!--Add hive popup-->
     <div class="add_hive_overlay" style="display:none">
     <div class="add_hive_content">
         <div class="upload_image">
-            <img src="../images/Pasted image.png" width=100%>
+          <input type="file" accept="image/*">
         </div>
         <div class="inputs">
                 <ul>
@@ -61,20 +62,29 @@
                     <span>Frames</span>
                     <input class="add_hive_input">
                 </ul>
-
                  <ul>
                     <span>Date</br>Established</span>
-                    <input type="date" class="add_hive_input">
+                    <input
+                      id="established-date"
+                      type="date"
+                      class="add_hive_input"
+                      min="2000-01-01"
+                      max="2050-12-31"
+                    >
                 </ul>
                  <ul>
                     <span>Queen</span>
-                    <input class="add_hive_input">
+                    <button id="add_queen" class="btn-primary"> add queen </button>
                 </ul>                
                 <ul>
                   <button class="btn-primary" id="post_hive_to_database">Add Hive</button>
                 </ul>
         </div>
     </div>
+    </div>
+    <!--Add queen-->
+    <div class="add_queen_popup" style="display: none;">
+      
     </div>
     <script type="module" src="hives.js"></script>
   </body>

@@ -123,6 +123,9 @@ document.querySelector("#addHiveBtn").addEventListener("click", () => {
   const datalist = document.querySelector("#locations");
   const overlay = document.querySelector(".add_hive_overlay");
   const post_hive_btn = document.querySelector("#post_hive_to_database");
+  const establishedDateInput = document.querySelector("#established-date");
+  const today = new Date().toISOString().slice(0, 10);
+  establishedDateInput.value = today;
   datalist.innerHTML = `${locationOptions}`;
   overlay.setAttribute("style", "display:flex");
 

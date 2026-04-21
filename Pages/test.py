@@ -17,18 +17,18 @@ with app.app_context():
 
     class Hive(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        last_inspection = db.Column(db.DateTime, default=db.func.now())
+        last_inspection = db.Column(db.DateTime, default=db.func.current_date())
         box_size = db.Column(db.String(10), nullable=False)
         frames = db.Column(db.String(120), nullable=False)
         location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
-        queen = db.relationship("Queen", backref="hive", uselist=False)
+        queen_id = db.Column(db.Integer, db.ForeignKey("queen.id"))
         name = db.Column(db.String(120))
 
     class Queen(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        hive_id = db.Column(db.Integer, db.ForeignKey("hive.id"))
-        breed = db.Column(db.String(20), nullable=False)
-        intro_date = db.Column(db.String(120))
+        hive = db.relationship("Hive", backref="queen", lazy=True)
+        breed = db.Column(db.String(20), default="Unknown")
+        intro_date = db.Column(db.String(120), default=db.func.current_date())
         colour = db.Column(db.String(20))
 
     class Location(db.Model):
