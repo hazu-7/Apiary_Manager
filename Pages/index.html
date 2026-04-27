@@ -1,54 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apiary Manager | Dashboard</title>
-    <link rel="stylesheet" href="../style.css">
-</head>
-<body>
-    <div class="container">
-        <nav class="sidebar">
-            <div class="logo">🐝 MyHive</div>
-            <ul>
-                <li class="active">Dashboard</li>
-                <li>
-                    <a href="hives.html">Hives</a>
-                </li>
-                <li >Queens</li>
-                <li>Locations</li>
-                <li>Inspections</li>
-            </ul>
-        </nav>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Apiary Manager | Dashboard</title>
+        <link rel="stylesheet" href="../Styles/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <nav class="sidebar">
+                <div class="logo">🐝 MyHive</div>
+                <ul>
+                    <li class="active">Dashboard</li>
+                    <li>
+                        <a href="hives.html">Hives</a>
+                    </li>
+                    <li>Queens</li>
+                    <li>Locations</li>
+                    <li>Inspections</li>
+                </ul>
+            </nav>
 
-        <main class="content">
-            <header>
-                <h1>Apiary Overview</h1>
-                <button id="addHiveBtn" class="btn-primary">+ Add New Hive</button>
-            </header>
+            <main class="content">
+                <header>
+                    <h1>Apiary Overview</h1>
+                    <button id="addHiveBtn" class="btn-primary">+ Add New
+                        Hive</button>
+                </header>
 
-            <section class="stats-grid">
-                <div class="card stat-card">
-                    <h3>Total Hives</h3>
-                    <p id="totalHives">12</p>
-                </div>
-                <div class="card stat-card">
-                    <h3>Active Queens</h3>
-                    <p id="activeQueens">10</p>
-                </div>
-                <div class="card stat-card">
-                    <h3>Health Alert</h3>
-                    <p class="alert-text">2 Hives</p>
-                </div>
-            </section>
+                <section class="stats-grid">
+                    <div class="card stat-card">
+                        <h3>Total Hives</h3>
+                        <p id="totalHives">12</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Active Queens</h3>
+                        <p id="activeQueens">10</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Health Alert</h3>
+                        <p class="alert-text">2 Hives</p>
+                    </div>
+                </section>
 
-            <section class="hive-section">
-                <h2>Recent Hive Activity</h2>
-                <div class="hive-grid" id="hiveGrid">
-                </div>
-            </section>
-        </main>
-    </div>
-   <script src="../index.js"></script>
-</body>
+                <section class="hive-section">
+                    <h2>Recent Hive Activity</h2>
+                    <div class="hive-grid" id="hiveGrid">
+                    </div>
+                </section>
+            </main>
+        </div>
+        <script src="../Scripts/index.js"></script>
+    </body>
 </html>
