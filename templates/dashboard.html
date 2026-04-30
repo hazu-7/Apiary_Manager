@@ -4,20 +4,23 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Apiary Manager | Dashboard</title>
-        <link rel="stylesheet" href="../Styles/style.css">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}">
     </head>
     <body>
         <div class="container">
             <nav class="sidebar">
-                <div class="logo">🐝 MyHive</div>
+                <div class="sidebar-header">
+                    <button id="toggle-sidebar">☰</button>
+                    <div class="logo">🐝 <span>MyHive</span></div>
+                </div>
                 <ul>
-                    <li class="active">Dashboard</li>
-                    <li>
-                        <a href="hives.html">Hives</a>
-                    </li>
-                    <li>Queens</li>
-                    <li>Locations</li>
-                    <li>Inspections</li>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('hives_page') }}">Hives</a></li>
+                    <li><a href="{{ url_for('queens_page') }}">Queens</a></li>
+                    <li><a href="{{ url_for('locations') }}">Locations</a></li>
+                    <li><a
+                            href="{{ url_for('inspections') }}">Inspections</a></li>
                 </ul>
             </nav>
 
@@ -50,6 +53,7 @@
                 </section>
             </main>
         </div>
-        <script src="../Scripts/index.js"></script>
+        <script type="module"
+            src="{{ url_for('static', filename='js/hives.js') }}"></script>
     </body>
 </html>

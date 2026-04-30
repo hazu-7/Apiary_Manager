@@ -1,6 +1,6 @@
 :root {
     --primary-gold: #ffb900;
-    --dark-slate: #2c3e50;
+    --dark-slate: #11314c;
     --bg-light: #f4f7f6;
     --white: #ffffff;
     --alert-red: #e74c3c;
@@ -10,12 +10,31 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: "Alexandria", sans-serif;
+    font-optical-sizing: auto;
+
 }
+
 
 body {
     background-color: var(--bg-light);
     display: flex;
+}
+
+h1 {
+    color: var(--dark-slate)
+}
+
+.flex {
+    display: flex;
+    gap: 10px;
+
+}
+
+a,
+a:visited {
+    text-decoration: none;
+    color: white
 }
 
 .container {
@@ -30,12 +49,39 @@ body {
     background: var(--dark-slate);
     color: white;
     padding: 20px;
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed .logo,
+.sidebar.collapsed li a {
+    display: none;
+}
+
+#toggle-sidebar {
+    background: none;
+    border: none;
+    color: var(--primary-gold);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: block;
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     color: var(--primary-gold);
 }
 
@@ -48,18 +94,29 @@ body {
     cursor: pointer;
     transition: 0.3s;
     border-radius: 5px;
+    font-weight: bold;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .sidebar li:hover,
 .sidebar li.active {
     background: #34495e;
+}
+
+.sidebar li:hover a,
+.sidebar li.active a {
     color: var(--primary-gold);
 }
 
 /* Main Content */
 .content {
     flex: 1;
-    padding: 40px;
+    padding: 0;
 }
 
 header {
@@ -70,6 +127,15 @@ header {
 
 }
 
+#top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    background-color: #ffb900;
+    padding: 20px 40px;
+}
+
+
 .btn-primary {
     background: var(--primary-gold);
     border: none;
@@ -79,8 +145,27 @@ header {
     cursor: pointer;
 }
 
+.btn-secondary {
+    background: var(--dark-slate);
+    color: var(--bg-light)
+}
+
+.btn-danger {
+    background: var(--alert-red);
+    color: var(--bg-light);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 
 /* Dashboard Cards */
+.all-hives {
+    padding: 40px;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -101,6 +186,17 @@ header {
     overflow: hidden;
 }
 
+.hive-select-checkbox {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    max-width: none;
+    padding: 0;
+}
+
 .hive-close-btn {
     background: var(--dark-slate);
     color: var(--white);
@@ -114,7 +210,7 @@ header {
     position: absolute;
     inset: 0;
     background: var(--white);
-    border: 2px solid var(--primary-gold);
+    /* border: 2px solid var(--primary-gold); */
     border-radius: 10px;
     padding: 16px;
     text-align: left;
@@ -158,20 +254,43 @@ input {
     background-color: var(--bg-light);
     border: 2px var(--dark-slate) solid;
     max-width: 50%;
+    height: 34px;
+    font-size: medium;
 }
 
 .options {
     display: flex;
     gap: 30px;
     padding: 0 5px;
+    height: 34px;
+}
+
+.actions-bar {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 10px;
+    margin: 10px 5px 0;
+    padding: 10px;
+    /* border: 2px solid var(--primary-gold); */
+    border-radius: 10px;
+}
+
+#bulk-actions {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#bulk-actions.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 select {
     flex: 1;
     flex-grow: 0.05;
     background-color: var(--bg-light);
-    border: 2px var(--dark-slate) solid;
+    border: 2px solid var(--dark-slate);
     border-radius: 10px;
     padding: 1px 4px;
 
@@ -189,8 +308,8 @@ select {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 2;
+    background: #11314c80;
+    z-index: 999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -205,20 +324,23 @@ select {
     pointer-events: auto;
 }
 
+#edit-hive-content,
 .add-hive-content,
 #add-queen-popup,
 #mv-queen-popup,
-#edit-hive-popup {
+#delete-hive-popup,
+#bulk-edit-popup,
+#bulk-delete-popup {
     display: flex;
     position: relative;
     background: white;
     padding: 2.75rem 1rem 1rem;
     border-radius: 10px;
-    z-index: 3;
+    z-index: 1000;
     width: fit-content;
     height: 50vh;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border: 5px solid var(--dark-slate);
+    /* border: 5px solid var(--dark-slate); */
     gap: 5px;
 
 }
@@ -243,19 +365,18 @@ select {
     flex-direction: column;
     justify-content: space-between;
     flex: 1;
-    padding: 10px 30px;
+    padding: 20px 0px;
     gap: 10px;
-    border: 5px solid var(--dark-slate);
+    /* border: 5px solid var(--dark-slate); */
     border-radius: 10px;
-    margin: 20px;
-    margin-right: 0px;
+
     font-size: 25px;
     font-weight: 500;
     color: var(--dark-slate);
 }
 
 
-label:has(>#upload-image) {
+label:has(.upload-image) {
     flex: 1;
     margin: 20px;
     margin-left: 0px;
@@ -270,14 +391,20 @@ label:has(>#upload-image) {
     align-self: center;
 }
 
-label:has(>#upload-image):hover {
+label:has(.upload-image):hover {
     border-color: var(--primary-gold);
 }
 
-#upload-image {
+.upload-image {
     display: none;
 }
 
+.hive-card:hover {
+    transform: translateY(-15px);
+    outline: 2px solid var(--dark-slate);
+    z-index: 11;
+    transition: transform 0.5s ease-in-out;
+}
 
 
 
@@ -314,7 +441,7 @@ label:has(>#post-hive-to-database, >#queens-list) {
     display: flex;
     justify-content: space-around;
     flex-direction: column;
-    z-index: 4;
+    z-index: 1001;
     width: 30vw;
     height: 30vh;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -334,24 +461,65 @@ label:has(>#post-hive-to-database, >#queens-list) {
     height: 30vh;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     border: 5px solid var(--dark-slate);
-    z-index: 4;
+    z-index: 1001;
 
 }
+
 
 #edit-hive-popup {
     display: flex;
-    justify-content: space-around;
+    /* justify-content: space-around; */
     flex-direction: column;
-    z-index: 4;
-    width: 35vw;
-    min-height: 40vh;
+    flex: 1;
+    /* z-index: 4; */
+    /* width: 35vw; */
+    /* min-height: 40vh;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     border: 5px solid var(--dark-slate);
+    */
 }
 
+/* 
 #edit-hive-overlay {
     justify-content: center;
     align-items: center;
+} */
+
+#delete-hive-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: min(90vw, 440px);
+    height: auto;
+}
+
+#bulk-edit-popup,
+#bulk-delete-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: min(90vw, 500px);
+    height: auto;
+}
+
+#bulk-edit-popup label {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#bulk-edit-popup input {
+    max-width: 60%;
+}
+
+#delete-hive-popup p {
+    color: var(--dark-slate);
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 #move-queen-from,
@@ -365,7 +533,7 @@ label:has(>#post-hive-to-database, >#queens-list) {
 .hive-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    border-top: 5px solid var(--primary-gold);
+    /* border-top: 5px solid var(--primary-gold); */
     border-radius: 10px;
     margin: 5px;
     padding: 5px;
