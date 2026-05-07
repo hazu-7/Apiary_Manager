@@ -1,12 +1,22 @@
 #!/bin/python3
-from flask import Flask, jsonify, request, redirect, url_for, render_template
+from flask import (
+    Flask,
+    jsonify,
+    request,
+    redirect,
+    url_for,
+    render_template,
+    session,
+    flash,
+)
+from sqlalchemy.exc import IntegrityError
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
-from datetime import datetime
+from sqlalchemy import func, text
+from datetime import datetime, timedelta
 from flask_cors import CORS
+from werkzeug.security import check_password_hash, generate_password_hash
 import os
 import shutil
-
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +24,10 @@ UPLOAD_PATH = "static/uploads"
 app.config["UPLOAD_PATH"] = UPLOAD_PATH
 os.makedirs(app.config["UPLOAD_PATH"], exist_ok=True)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY", "dev-insecure-change-for-production"
+)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 db = SQLAlchemy(app)
 
 
@@ -21,16 +35,20 @@ with app.app_context():
 
     class Hive(db.Model):
         id = db.Column(db.Integer, primary_key=True)
+        user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
         last_inspection = db.Column(db.DateTime, default=db.func.current_date())
         box_size = db.Column(db.String(10), nullable=False)
         frames = db.Column(db.String(120), nullable=False)
         location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
         queen_id = db.Column(db.Integer, db.ForeignKey("queen.id"))
         image_id = db.Column(db.Integer, db.ForeignKey("image.id"))
+        feed = db.Column(db.String(40))
         name = db.Column(db.String(120))
+        notes = db.Column(db.String(500), default="")
 
     class Queen(db.Model):
         id = db.Column(db.Integer, primary_key=True)
+        user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
         hive_id = db.relationship("Hive", backref="queen", lazy=True)
         breed = db.Column(db.String(20), default="Unknown")
         intro_date = db.Column(db.String(120), default=db.func.current_date())
@@ -38,9 +56,11 @@ with app.app_context():
 
     class Location(db.Model):
         id = db.Column(db.Integer, primary_key=True)
+        user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
         name = db.Column(db.String(120), default="No Location")
         hives = db.relationship("Hive", backref="at_location", lazy=True)
-        coords = db.Column(db.String(120))
+        Longitude = db.Column(db.Integer, default="Undefined")
+        Latitude = db.Column(db.Integer, default="Undefined")
 
         @property
         def number_of_hives(self):
@@ -53,16 +73,19 @@ with app.app_context():
         path = db.Column(db.String(200))
         image = db.relationship("Hive", backref="image_info", lazy=True)
 
-    class Equipment(db.Model):
+    class User(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        feed = db.Column(db.Integer)
-        prot_hat = db.Column(db.Integer)
-        suit = db.Column(db.Integer)
+        username = db.Column(db.String(80), unique=True, nullable=False)
+        email = db.Column(db.String(80), unique=True)
+        password_hash = db.Column(db.String(256), nullable=False)
+        hives = db.relationship("Hive", backref="owner")
+        locations = db.relationship("Location", backref="owner")
+        queens = db.relationship("Queen", backref="owner")
 
     db.create_all()
 
     try:
-        if not Image.query.get(1):
+        if not db.session.get(Image, 1):
             db.session.add(
                 Image(
                     id=1,
@@ -73,11 +96,94 @@ with app.app_context():
         else:
             print("Default image exists")
     except Exception as e:
+        db.session.rollback()
         print("An error has occured!", e)
+
+    if User.query.count() == 0:
+        initial_pw = os.environ.get("APIARY_INITIAL_PASSWORD", "admin")
+        db.session.add(
+            User(
+                username="admin",
+                password_hash=generate_password_hash(initial_pw),
+            )
+        )
+        db.session.commit()
+        print(
+            "Created default user 'admin'. "
+            "Set APIARY_INITIAL_PASSWORD or SECRET_KEY for production."
+        )
+
+    @app.before_request
+    def require_login():
+        if session.get("user_id") is not None:
+            return
+        if request.endpoint in ("login", "logout", "static", "register_user"):
+            return
+        if request.path.startswith("/static/"):
+            return
+        if request.path.startswith("/api/"):
+            return jsonify({"message": "Unauthorized"}), 401
+        return redirect(url_for("login", next=request.path))
+
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        if session.get("user_id") is not None:
+            return redirect(url_for("dashboard"))
+        if request.method == "POST":
+            username = (request.form.get("username") or "").strip()
+            password = request.form.get("password") or ""
+            user = User.query.filter_by(username=username).first()
+            if user and check_password_hash(user.password_hash, password):
+                session["user_id"] = user.id
+                session.permanent = True
+                next_path = request.form.get("next") or request.args.get("next")
+                if (
+                    next_path
+                    and next_path.startswith("/")
+                    and not next_path.startswith("//")
+                ):
+                    return redirect(next_path)
+                return redirect(url_for("dashboard"))
+            flash("Invalid username or password.", "error")
+        return render_template(
+            "login.html",
+        )
+
+    @app.route("/register", methods=["POST"])
+    def register_user():
+        try:
+            data = request.get_json()
+            username = data.get("username")
+            email = data.get("email")
+            password = data.get("password")
+            hashed_password = generate_password_hash(password)
+            new_user = User(
+                username=username, email=email, password_hash=hashed_password
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            return (jsonify({"success": True}), 200)
+        except IntegrityError as e:
+            db.session.rollback()
+            if "username" in str(e.orig):
+                return (jsonify({"message": "Username already exists"}), 400)
+            elif "email" in str(e.orig):
+                return (jsonify({"message": "Email already exists"}), 400)
+        except Exception as e:
+            db.session.rollback()
+            print("error", e)
+            return (jsonify({"message": "An error has occured."}), 400)
+
+    @app.route("/logout")
+    def logout():
+        session.clear()
+        return redirect(url_for("login"))
 
     @app.route("/api/hives", methods=["GET"])
     def get_hives():
-        hives = Hive.query.options(db.joinedload(Hive.at_location)).all()
+        user = db.session.get(User, session["user_id"])
+        hives = user.hives
+
         # Convert database objects into a list of dictionaries
         output = []
         for hive in hives:
@@ -96,6 +202,8 @@ with app.app_context():
                 ),
                 "image": hive.image_info.path,
                 "image_id": hive.image_info.id,
+                "notes": hive.notes or "",
+                "feed": hive.feed or "",
             }
             output.append(hive_data)
 
@@ -113,6 +221,7 @@ with app.app_context():
         image_id = data.get("image_id")
 
         new_hive = Hive(
+            user_id=session.get("user_id"),
             box_size=box_size,
             frames=frames,
             location_id=location_id,
@@ -121,7 +230,7 @@ with app.app_context():
             queen_id=queen_id,
             image_id=image_id,
         )
-        location = Location.query.get(location_id)
+        location = db.session.get(Location, location_id)
         try:
             db.session.add(new_hive)
             location.max_number_of_hives += 1
@@ -137,25 +246,43 @@ with app.app_context():
 
     @app.route("/api/hive/update/<int:hive_id>", methods=["PUT"])
     def update_hive(hive_id):
-        hive = Hive.query.get_or_404(hive_id)
+        hive = db.session.get(Hive, hive_id)
         data = request.get_json()
 
         original_location = hive.at_location
 
         try:
             new_location_id = data.get("location_id", hive.location_id)
-            new_location = Location.query.get(new_location_id)
+            new_location = db.session.get(Location, new_location_id)
 
             hive.name = data.get("name", hive.name)
             hive.location_id = new_location_id
             hive.box_size = data.get("box_size", hive.box_size)
             hive.frames = data.get("frames", hive.frames)
+            if "queen_id" in data:
+                hive.queen_id = data.get("queen_id")
 
             if data.get("last_inspection"):
                 hive.last_inspection = datetime.strptime(
                     data.get("last_inspection"),
                     "%Y-%m-%d",
                 )
+
+            if "notes" in data:
+                notes = data.get("notes") or ""
+                if len(notes) > 500:
+                    return (
+                        jsonify({"message": "Notes must be 500 characters or less."}),
+                        400,
+                    )
+                hive.notes = notes
+
+            if "feed" in data:
+                feed = data.get("feed")
+                if isinstance(feed, bool):
+                    hive.feed = "added" if feed else ""
+                else:
+                    hive.feed = (feed or "")[:40]
 
             # Update relationships
             db.session.flush()
@@ -181,14 +308,17 @@ with app.app_context():
 
     @app.route("/api/hive/remove/<int:hive_id>", methods=["DELETE"])
     def remove_hive(hive_id):
-        to_be_removed_hive = Hive.query.get_or_404(hive_id)
+        to_be_removed_hive = db.session.get(Hive, hive_id)
         location = to_be_removed_hive.at_location
+        queen = to_be_removed_hive.queen
         try:
-            if location.number_of_hives == 1:
-                remove_location(location.id)
+            if location != None:
+                if location.number_of_hives == 1:
+                    remove_location(location.id)
+            if queen != None:
+                remove_queen(queen.id)
             if to_be_removed_hive.image_id != 1:
-                os.remove(to_be_removed_hive.image_info.path)
-                db.session.delete(to_be_removed_hive.image_info)
+                remove_image(to_be_removed_hive.image_id)
 
             db.session.delete(to_be_removed_hive)
             db.session.commit()
@@ -200,7 +330,8 @@ with app.app_context():
 
     @app.route("/api/queens", methods=["GET"])
     def get_queens():
-        queens = Queen.query.all()
+        user = db.session.get(User, session["user_id"])
+        queens = user.queens
         output = []
         for queen in queens:
             queen_data = {
@@ -217,8 +348,9 @@ with app.app_context():
         data = request.get_json()
         breed = data.get("breed")
         colour = data.get("colour")
-        intro_date = data.get("intro_date")
+        intro_date = data.get("intro_date") or data.get("introDate")
         new_queen = Queen(
+            user_id=session["user_id"],
             breed=breed,
             colour=colour,
             intro_date=intro_date,
@@ -232,27 +364,58 @@ with app.app_context():
             print(f"error {e}")
             return jsonify({"message": "An error has occured."}), 400
 
-    @app.route("/api/queen/update/<int:queen_id>", methods=["UPDATE"])  # TBI
+    @app.route("/api/queen/update/<int:queen_id>", methods=["PUT"])
     def update_queen(queen_id):
-        queen = Queen.query.get_or_404(queen_id)
+        queen = db.session.get(Queen, queen_id)
+        if not queen or queen.user_id != session.get("user_id"):
+            return jsonify({"message": "Queen not found"}), 404
+
+        data = request.get_json() or {}
+        try:
+            queen.breed = data.get("breed", queen.breed)
+            queen.colour = data.get("colour", queen.colour)
+            queen.intro_date = data.get("intro_date", queen.intro_date)
+            db.session.commit()
+            return jsonify({"success": True, "message": "Queen updated"}), 200
+        except Exception as e:
+            db.session.rollback()
+            print(f"error {e}")
+            return jsonify({"message": "An error has occured."}), 400
 
     @app.route("/api/queen/remove/<int:queen_id>", methods=["DELETE"])  # TBI
-    def remove_queen():
-        pass
+    def remove_queen(queen_id):
+        print("hello")
+        queen_to_remove = db.session.get(Queen, queen_id)
+        if not queen_to_remove or queen_to_remove.user_id != session.get("user_id"):
+            return jsonify({"message": "Queen not found"}), 404
+        try:
+            hives_with_queen = Hive.query.filter_by(
+                user_id=session.get("user_id"), queen_id=queen_to_remove.id
+            ).all()
+            for hive in hives_with_queen:
+                hive.queen_id = None
+            db.session.delete(queen_to_remove)
+            db.session.commit()
+            return jsonify({"success": True, "message": "Queen Removed"}), 200
+        except Exception as e:
+            db.session.rollback()
+            print(f"error {e}")
+            return jsonify({"message": "An error has occured."}), 400
 
     @app.route("/api/locations", methods=["GET"])
     def get_locations():
-        locations = Location.query.all()
+        user = db.session.get(User, session["user_id"])
+        locations = user.locations
         output = []
         for loc in locations:
+            mx = max(loc.max_number_of_hives, loc.number_of_hives)
             location_data = {
                 "name": loc.name,
                 "id": loc.id,
                 "number_of_hives": loc.number_of_hives,
-                "coords": loc.coords,
-                "max_number_of_hives": max(
-                    loc.max_number_of_hives, loc.number_of_hives
-                ),
+                "lng": loc.Longitude,
+                "lat": loc.Latitude,
+                "max_number_of_hives": mx,
                 "hives": [
                     {
                         "id": h.id,
@@ -271,10 +434,13 @@ with app.app_context():
     def add_location():
         data = request.get_json()
         name = data.get("name").lower()
-        coords = data.get("coords")
+        Longitude = data.get("Longitude")
+        Latitude = data.get("Latitude")
         new_location = Location(
             name=name,
-            coords=coords,
+            user_id=session["user_id"],
+            Longitude=Longitude,
+            Latitude=Latitude,
         )
         try:
             db.session.add(new_location)
@@ -285,12 +451,28 @@ with app.app_context():
             print(f"error {e}")
             return jsonify({"message": "An error has occured."}), 400
 
+    @app.route("/api/location/update/<int:location_id>", methods=["PUT"])
+    def update_location(location_id):
+        location = db.session.get(Location, location_id)
+        data = request.get_json()
+        try:
+            location.name = data.get("name")
+            location.Latitude = data.get("lat")
+            location.Longitude = data.get("lng")
+            db.session.commit()
+            return jsonify({"success": True, "message": "Hive updated"}), 200
+        except Exception as e:
+            db.session.rollback()
+            print("Error occured:", e)
+            return jsonify({"message": "An error has occured"}), 400
+
     @app.route("/api/location/remove/<int:location_id>", methods=["DELETE"])
     def remove_location(location_id):
-        location_to_remove = Location.query.get_or_404(location_id)
+        location_to_remove = db.session.get(Location, location_id)
         try:
             db.session.delete(location_to_remove)
             db.session.commit()
+            return jsonify({"success": True, "message": "Location Removed"}), 200
         except Exception as e:
             db.session.rollback()
             print(f"error {e}")
@@ -328,13 +510,14 @@ with app.app_context():
             print(f"File saved to: {os.path.abspath(path)}")
             return (jsonify({"success": True, "image_id": new_image.id}), 201)
         except Exception as e:
+            db.session.rollback()
             print(f"error {e}")
             return (jsonify({"message": "An error has occured."}), 400)
 
-    @app.route("/api/image/upadate<int:image_id>", methods=["UPDATE"])
+    @app.route("/api/image/update/<int:image_id>", methods=["PUT"])
     def update_image(image_id):
         print(image_id)
-        image = Image.query.get_or_404(image_id)
+        image = db.session.get(Image, image_id)
         data = request.files.get("image")
         filename = request.form.get("fileName")
         path = os.path.join(app.config["UPLOAD_PATH"], f"{filename}.jpg")
@@ -354,12 +537,25 @@ with app.app_context():
             print(f"File saved to: {os.path.abspath(path)}")
             return (jsonify({"success": True, "image_id": image.id}), 201)
         except Exception as e:
+            db.session.rollback()
             print(f"error {e}")
             return (jsonify({"message": "An error has occured."}), 400)
 
-    @app.route("/api/image/remove/<int:image_id>", methods=["DELETE"])  # TBI
+    @app.route("/api/image/remove/<int:image_id>", methods=["DELETE"])
     def remove_image(image_id):
-        pass
+        if image_id == 1:
+            return jsonify({"success": True, "message": "Image Removed"}), 200
+        else:
+            image_to_be_removed = db.session.get(Image, image_id)
+            try:
+                os.remove(image_to_be_removed.path)
+                db.session.delete(image_to_be_removed)
+                db.session.commit()
+                return jsonify({"success": True, "message": "Image Removed"}), 200
+            except Exception as e:
+                db.session.rollback()
+            print(f"error {e}")
+            return (jsonify({"message": "An error has occured."}), 400)
 
     @app.route("/")
     def dashboard():
@@ -371,7 +567,55 @@ with app.app_context():
 
     @app.route("/queens")
     def queens_page():
-        return render_template("queens.html")
+        user = db.session.get(User, session["user_id"])
+        if not user:
+            return redirect(url_for("login"))
+
+        hive_by_queen_id = {hive.queen_id: hive for hive in user.hives if hive.queen_id}
+        grouped = {}
+
+        for queen in user.queens:
+            hive = hive_by_queen_id.get(queen.id)
+            location_name = "Unassigned"
+            hive_name = None
+            if hive:
+                location_name = (
+                    hive.at_location.name
+                    if hive.at_location and hive.at_location.name
+                    else "No Location"
+                )
+                hive_name = hive.name or f"Hive {hive.id}"
+
+            queen_data = {
+                "id": queen.id,
+                "breed": queen.breed or "Unknown",
+                "colour": queen.colour or "Uncoloured",
+                "intro_date": queen.intro_date or "",
+                "hive_name": hive_name,
+            }
+            grouped.setdefault(location_name, []).append(queen_data)
+
+        grouped_queens = [
+            {
+                "location": location,
+                "queens": sorted(queens, key=lambda item: item["id"]),
+            }
+            for location, queens in sorted(
+                grouped.items(), key=lambda item: item[0].lower()
+            )
+        ]
+
+        total_queens = len(user.queens)
+        assigned_queens = len(
+            [queen for queen in user.queens if queen.id in hive_by_queen_id]
+        )
+        return render_template(
+            "queens.html",
+            grouped_queens=grouped_queens,
+            total_queens=total_queens,
+            assigned_queens=assigned_queens,
+            unassigned_queens=total_queens - assigned_queens,
+        )
 
     @app.route("/inspections")
     def inspections():

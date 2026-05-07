@@ -4,172 +4,412 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apiary Manager | Hives</title>
-    <link rel="icon" type="image/x-icon" href="http://127.0.0.1:5000/static/images/favicon.ico">
+    <link rel="icon" type="image/x-icon"
+      href="http://127.0.0.1:5000/static/images/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body>
     <div class="container">
-      <nav class="sidebar">
-          <button id="toggle-sidebar">☰</button></br>
-          <div class="sidebar-header">
-              <div class="logo">🐝 <span>MyHive</span></div>
-          </div>
+
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <a class="logo" href="#">
+            <span class="logo-icon">🐝</span>
+            <span class="logo-text">MyHive</span>
+          </a>
+          <button id="toggle-sidebar" title="Toggle sidebar">&#9776;</button>
+        </div>
+        <nav>
           <ul>
-            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('hives_page') }}">Hives</a></li>
-            <li><a href="{{ url_for('queens_page') }}">Queens</a></li>
-            <li><a href="{{ url_for('locations') }}">Locations</a></li>
-            <li><a href="{{ url_for('inspections') }}">Inspections</a></li>
+            <li>
+              <a href="{{ url_for('dashboard') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3"
+                      width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" /><rect x="3"
+                      y="14" width="7" height="7" />
+                  </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+              </a>
+            </li>
+            <li class="active">
+              <a href="{{ url_for('hives_page') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </span>
+                <span class="nav-label">Hives</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('queens_page') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 18l2-10 4 4 3-6 3 6 4-4 2 10z" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </svg>
+                </span>
+                <span class="nav-label">Queens</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('locations') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <span class="nav-label">Locations</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('inspections') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                    <rect x="9" y="3" width="6" height="4" rx="2" />
+                    <line x1="9" y1="12" x2="15" y2="12" /><line x1="9" y1="16"
+                      x2="13" y2="16" />
+                  </svg>
+                </span>
+                <span class="nav-label">Inspections</span>
+              </a>
+            </li>
+            <li class="nav-logout">
+              <a href="{{ url_for('logout') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </span>
+                <span class="nav-label">Log out</span>
+              </a>
+            </li>
           </ul>
-      </nav>
+        </nav>
+        <button class="sidebar-expand" id="expand-sidebar"
+          title="Expand sidebar">›</button>
+      </aside>
+
+      <!-- ── Main content ── -->
       <main class="content">
         <div id="top-bar">
-        <header>
-          <h1>Hives</h1>
-          <button id="addHiveBtn" class="btn-primary btn-secondary">+ Add New Hive</button>
-        </header>
-      <div class="actions-bar">
-        <div class="options">
-          <select name="sort">
-            <option value="id">ID</option>
-            <option value="location">Location</option>
-            <option value="queen">Queen Status</option>
-            <option value="box-size">Box Size</option>
-          </select>
+          <header>
+            <h1>Hives</h1>
+            <button id="addHiveBtn" class="btn-primary btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5"
+                  x2="12" y2="19" /><line x1="5" y1="12" x2="19"
+                  y2="12" /></svg>
+              Add New Hive
+            </button>
+          </header>
+
+          <!-- Stats strip -->
+          <div class="stats-strip" id="stats-strip">
+            <div class="stat-item">
+              <span class="stat-label">Total Hives</span>
+              <span class="stat-value" id="stat-total">—</span>
+            </div>
+            <div class="stat-item stat-queened">
+              <span class="stat-label">Queened</span>
+              <span class="stat-value" id="stat-queened">—</span>
+            </div>
+            <div class="stat-item stat-unqueened">
+              <span class="stat-label">Unqueened</span>
+              <span class="stat-value" id="stat-unqueened">—</span>
+            </div>
+            <div class="stat-item stat-locations">
+              <span class="stat-label">Locations</span>
+              <span class="stat-value" id="stat-locations">—</span>
+            </div>
+          </div>
+
+          <!-- Actions bar -->
+          <div class="actions-bar">
+            <div class="options">
+              <select name="sort">
+                <option value="name">Sort: Name</option>
+                <option value="location">Sort: Location</option>
+                <option value="queen">Sort: Queen Status</option>
+                <option value="box-size">Sort: Box Size</option>
+              </select>
+            </div>
+
+            <div class="search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65"
+                  y2="16.65" />
+              </svg>
+              <input id="search-box" placeholder="Search hives…" />
+            </div>
+
+            <div id="bulk-actions">
+              <span id="selected-count">0 selected</span>
+              <button class="btn-primary btn-ghost" type="button"
+                id="bulk-edit-btn">Edit Selected</button>
+              <button class="btn-danger" type="button"
+                id="bulk-delete-btn">Delete Selected</button>
+              <button class="btn-primary btn-ghost" type="button"
+                id="clear-selection-btn">Clear</button>
+            </div>
+          </div>
         </div>
-        <div id="bulk-actions">
-          <span id="selected-count"></span>
-          <button class="btn-primary btn-secondary" type="button" id="bulk-edit-btn">Edit Selected</button>
-          <button class="btn-danger" type="button" id="bulk-delete-btn">Delete Selected</button>
-          <button class="btn-primary btn-secondary" type="button" id="clear-selection-btn">Clear Selection</button>
+
+        <!-- Hive grid -->
+        <div class="page-body">
+          <section class="hive-grid" id="hive-grid"></section>
         </div>
-        <input id="search-box" />
-      </div>
-      </div>
-        <section class="all-hives hive-grid"></section>
       </main>
     </div>
-      <!--Add hive popup-->
+
+    <!-- ── Add Hive Overlay ── -->
     <div class="overlay" id="add-hive-overlay">
-    <div class="add-hive-content">
-          <button class="popup-close-btn" type="button" data-overlay="#add-hive-overlay">x</button>
-          <label for="upload-image-input">
-            <img src="http://127.0.0.1:5000/static/images/uploadHive.png">
-            <input type="file" accept="image/*" id="upload-image-input" class="upload-image">
-          </label>
-          <form id="post-hive-popup" class="inputs">
-          <label>Name<input class="add-hive-input" placeholder="Leave Blank For Auto Name"></label>
-          <label>Location<input list="locations" class="add-hive-input" required></label>
-              <datalist id="locations">
-              </datalist>
-          <label>Box Size<input class="add-hive-input" required></label>
-          <label>Frames<input class="add-hive-input" required></label>
+      <div class="add-hive-content">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#add-hive-overlay">✕</button>
+        <label class="image-upload-label" for="upload-image-input">
+          <img src="http://127.0.0.1:5000/static/images/uploadHive.png"
+            alt="Upload hive image">
+          <input type="file" accept="image/*" id="upload-image-input"
+            class="upload-image">
+        </label>
+        <form id="post-hive-popup" class="inputs">
           <label>
-              <span>Date</br>Established</span>
-              <input
-                type="date"
-                class="add-hive-input established-date"
-                min="2000-01-01"
-                max="2050-12-31"
-                required
-              >
+            Name
+            <input class="add-hive-input" placeholder="Auto-generated if blank">
           </label>
-          <label>Queen             
-              <button id="mv-queen" class="btn-primary" type="button"> Move Queen </button>
-              <button id="add-queen" class="btn-primary" type="button"> Add Queen </button>
-          </label>                
-            <button class="btn-primary" type="submit" id="post-hive-to-database">Add Hive</button>
+          <label>
+            Location
+            <input list="locations" class="add-hive-input" required
+              placeholder="Start typing…">
+            <datalist id="locations"></datalist>
+          </label>
+          <label>
+            Box Size
+            <input class="add-hive-input" type="number" inputmode="numeric"
+              min="0" step="1" required placeholder="e.g. 1">
+          </label>
+          <label>
+            Frames
+            <input class="add-hive-input" type="number" inputmode="numeric"
+              min="0" step="1" required placeholder="e.g. 10">
+          </label>
+          <label>
+            Date Established
+            <input type="date" class="add-hive-input established-date"
+              min="2000-01-01" max="2050-12-31" required>
+          </label>
+          <label>
+            Queen
+            <div class="queen-btns">
+              <button class="btn-primary queen-action-btn" data-action="move"
+                data-context="add" type="button">Move
+                Queen</button>
+              <button class="btn-primary queen-action-btn" data-action="add"
+                data-context="add" type="button">Add
+                Queen</button>
+            </div>
+          </label>
+          <button class="btn-primary btn-secondary" type="submit"
+            id="post-hive-to-database">Add Hive</button>
         </form>
+      </div>
     </div>
-    </div>
-    <!--Add queen-->
+
+    <!-- ── Add Queen Overlay ── -->
     <div class="overlay" id="add-queen-overlay">
       <form id="add-queen-popup">
-        <button class="popup-close-btn" type="button" data-overlay="#add-queen-overlay">x</button>
-        <label>Breed <input class="new-queen-input" placeholder="Leave Blank For Unknown"></label>
-        <label>Color <input class="new-queen-input" placeholder="Leave Blank For Uncoloured"></label>
-        <label>Introduction Date <input class="new-queen-input established-date" type="date" placeholder="Date Queen Was Added To Hive"></label>
-        <button class="btn-primary" type="submit">Add Queen</button>
+        <button class="popup-close-btn" type="button"
+          data-overlay="#add-queen-overlay">✕</button>
+        <h3>Add New Queen</h3>
+        <label>
+          Breed
+          <input class="new-queen-input" placeholder="Leave blank if unknown">
+        </label>
+        <label>
+          Colour
+          <input class="new-queen-input"
+            placeholder="Leave blank if uncoloured">
+        </label>
+        <label>
+          Introduction Date
+          <input class="new-queen-input established-date" type="date">
+        </label>
+        <button class="btn-primary btn-secondary" type="submit">Add
+          Queen</button>
       </form>
     </div>
+
+    <!-- ── Move Queen Overlay ── -->
     <div class="overlay" id="mv-queen-overlay">
       <form id="mv-queen-popup">
-        <button class="popup-close-btn" type="button" data-overlay="#mv-queen-overlay">x</button>
+        <button class="popup-close-btn" type="button"
+          data-overlay="#mv-queen-overlay">✕</button>
+        <h3>Move Queen</h3>
         <label>
-          Move From Hive 
-          <select id="move-queen-from">
-          </select>
+          Move From Hive
+          <select id="move-queen-from"></select>
         </label>
         <label>
-          <pre>Replace with      </pre>
-          <select id="replace-with-queen">
-          </select>
+          Replace With
+          <select id="replace-with-queen"></select>
         </label>
-        <button class="btn-primary" type="submit" >Move Queen</button>
+        <button class="btn-primary btn-secondary" type="submit">Move
+          Queen</button>
       </form>
     </div>
+
+    <!-- ── Edit Hive Overlay ── -->
     <div class="overlay" id="edit-hive-overlay">
       <div id="edit-hive-content">
-       <button class="popup-close-btn" type="button" data-overlay="#edit-hive-overlay">x</button>
-      <label for="upload-image-edit-input">
-        <img src="" id="edit-image">
-        <input type="file" accept="image/*" id="upload-image-edit-input" class="upload-image">
-      </label>
-      <form id="edit-hive-popup" class="inputs">
-        <input type="hidden" id="edit-hive-id">
-        <input type="hidden" id="edit-image-id">
-        <label>Name <input class="edit-hive-input" id="edit-hive-name" required></label>
-        <label>Location <input list="locations" class="edit-hive-input" id="edit-hive-location" required></label>
-        <label>Box Size <input class="edit-hive-input" id="edit-hive-box-size" required></label>
-        <label>Frames <input class="edit-hive-input" id="edit-hive-frames" required></label>
-        <label>Last </br> Inspection <input type="date" class="edit-hive-input established-date" id="edit-hive-last-inspection" required></label>
-        <button class="btn-primary" type="submit">Save Hive</button>
-      </form>
+        <button class="popup-close-btn" type="button"
+          data-overlay="#edit-hive-overlay">✕</button>
+        <label class="image-upload-label" for="upload-image-edit-input">
+          <img src id="edit-image" alt="Hive image">
+          <input type="file" accept="image/*" id="upload-image-edit-input"
+            class="upload-image">
+        </label>
+        <form id="edit-hive-popup" class="inputs">
+          <input type="hidden" id="edit-hive-id">
+          <input type="hidden" id="edit-image-id">
+          <label>
+            Name
+            <input class="edit-hive-input" id="edit-hive-name" required>
+          </label>
+          <label>
+            Location
+            <input list="locations" class="edit-hive-input"
+              id="edit-hive-location" required>
+          </label>
+          <label>
+            Box Size
+            <input class="edit-hive-input" id="edit-hive-box-size" type="number"
+              inputmode="numeric" min="0" step="1" required>
+          </label>
+          <label>
+            Frames
+            <input class="edit-hive-input" id="edit-hive-frames" type="number"
+              inputmode="numeric" min="0" step="1" required>
+          </label>
+          <label>
+            Last Inspection
+            <input type="date" class="edit-hive-input established-date"
+              id="edit-hive-last-inspection" required>
+          </label>
+          <div class="queen-btns">
+            <button class="btn-primary queen-action-btn" data-action="move"
+              data-context="edit" type="button">Move
+              Queen</button>
+            <button class="btn-primary queen-action-btn" data-action="add"
+              data-context="edit" type="button">Add
+              Queen</button>
+          </div>
+          <button class="btn-primary btn-secondary" type="submit">Save
+            Changes</button>
+        </form>
+      </div>
     </div>
-    </div>
+
+    <!-- ── Delete Hive Overlay ── -->
     <div class="overlay" id="delete-hive-overlay">
-      <div id="delete-hive-popup">
-        <button class="popup-close-btn" type="button" data-overlay="#delete-hive-overlay">x</button>
+      <div id="delete-hive-popup" class="popup">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#delete-hive-overlay">✕</button>
         <h3>Delete Hive</h3>
-        <p>Are you sure you want to delete <strong id="delete-hive-name">this hive</strong>?</p>
-        <p>This action cannot be undone.</p>
+        <p>Are you sure you want to delete <strong id="delete-hive-name">this
+            hive</strong>? This action cannot be undone.</p>
         <div class="popup-actions">
-          <button class="btn-primary" type="button" id="cancel-delete-hive">Cancel</button>
-          <button class="btn-danger" type="button" id="confirm-delete-hive">Delete Hive</button>
+          <button class="btn-primary btn-ghost" type="button"
+            id="cancel-delete-hive">Cancel</button>
+          <button class="btn-danger" type="button"
+            id="confirm-delete-hive">Delete Hive</button>
         </div>
       </div>
     </div>
+
+    <!-- ── Bulk Edit Overlay ── -->
     <div class="overlay" id="bulk-edit-overlay">
       <form id="bulk-edit-popup">
-        <button class="popup-close-btn" type="button" data-overlay="#bulk-edit-overlay">x</button>
+        <button class="popup-close-btn" type="button"
+          data-overlay="#bulk-edit-overlay">✕</button>
         <h3>Edit Selected Hives</h3>
-        <p>Leave any field blank to keep current values.</p>
-        <label>Location <input list="locations" id="bulk-edit-location"></label>
-        <label>Box Size <input id="bulk-edit-box-size"></label>
-        <label>Frames <input id="bulk-edit-frames"></label>
-        <label>Last Inspection <input type="date" id="bulk-edit-last-inspection"></label>
+        <p>Leave any field blank to keep existing values.</p>
+        <label>
+          Location
+          <input list="locations" id="bulk-edit-location"
+            placeholder="Leave blank to keep">
+        </label>
+        <label>
+          Box Size
+          <input id="bulk-edit-box-size" type="number" inputmode="numeric"
+            min="0"
+            step="1" placeholder="Leave blank to keep">
+        </label>
+        <label>
+          Frames
+          <input id="bulk-edit-frames" type="number" inputmode="numeric" min="0"
+            step="1" placeholder="Leave blank to keep">
+        </label>
+        <label>
+          Last Inspection
+          <input type="date" id="bulk-edit-last-inspection">
+        </label>
         <div class="popup-actions">
-          <button class="btn-primary" type="button" id="cancel-bulk-edit">Cancel</button>
-          <button class="btn-primary" type="submit">Apply Changes</button>
+          <button class="btn-primary btn-ghost" type="button"
+            id="cancel-bulk-edit">Cancel</button>
+          <button class="btn-primary btn-secondary" type="submit">Apply
+            Changes</button>
         </div>
       </form>
     </div>
+
+    <!-- ── Bulk Delete Overlay ── -->
     <div class="overlay" id="bulk-delete-overlay">
-      <div id="bulk-delete-popup">
-        <button class="popup-close-btn" type="button" data-overlay="#bulk-delete-overlay">x</button>
+      <div id="bulk-delete-popup" class="popup">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#bulk-delete-overlay">✕</button>
         <h3>Delete Selected Hives</h3>
-        <p>You are about to delete <strong id="bulk-delete-count">0</strong> hives.</p>
-        <p>This action cannot be undone.</p>
+        <p>You are about to permanently delete <strong
+            id="bulk-delete-count">0</strong> hives. This cannot be undone.</p>
         <div class="popup-actions">
-          <button class="btn-primary" type="button" id="cancel-bulk-delete">Cancel</button>
-          <button class="btn-danger" type="button" id="confirm-bulk-delete">Delete Selected</button>
+          <button class="btn-primary btn-ghost" type="button"
+            id="cancel-bulk-delete">Cancel</button>
+          <button class="btn-danger" type="button"
+            id="confirm-bulk-delete">Delete Selected</button>
         </div>
       </div>
     </div>
-    <script type="module" src="{{ url_for('static', filename='js/hives.js') }}"></script>
+
+    <script type="module"
+      src="{{ url_for('static', filename='js/hives.js') }}"></script>
   </body>
 </html>

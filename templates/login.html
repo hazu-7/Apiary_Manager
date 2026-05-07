@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apiary Manager | Sign in</title>
+    <link rel="icon" type="image/x-icon"
+      href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}" />
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-card">
+        <div class="login-brand">
+          <span class="logo-icon" aria-hidden="true">🐝</span>
+          <h1>MyHive</h1>
+          <p>Sign in to manage your apiary</p>
+        </div>
+        <!-- Tab switcher -->
+        <div class="tab-row" role="tablist">
+          <button class="tab-btn active" role="tab" id="tab-signin">Sign
+            in</button>
+          <button class="tab-btn" role="tab" id="tab-signup">Create
+            account</button>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="login-flash" role="alert">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- SIGN IN -->
+        <div class="form-panel visible" id="panel-signin" role="tabpanel"
+          aria-labelledby="tab-signin">
+          <form class="login-form" method="post"
+            action="{{ url_for('login') }}">
+            <input type="hidden" name="next" value="{{ next or '' }}" />
+
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text"
+              autocomplete="username" required autofocus />
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password"
+              autocomplete="current-password" required />
+
+            <button type="submit">Sign in</button>
+          </form>
+
+        </div>
+
+        <!-- SIGN UP -->
+        <div class="form-panel" id="panel-signup" role="tabpanel"
+          aria-labelledby="tab-signup">
+          <form class="login-form" method="post"
+            id="signup-form" action="{{url_for('register_user')}}">
+
+            <label for="reg-username">Username</label>
+            <input id="reg-username" name="username" type="text"
+              autocomplete="username" required />
+
+            <label for="reg-email">Email</label>
+            <input id="reg-email" name="email" type="email"
+              autocomplete="email" required />
+
+            <label for="reg-password">Password</label>
+            <input id="reg-password" name="password" type="password"
+              autocomplete="new-password" required />
+            <div class="strength-bar" id="strength-bar">
+              <span id="s1"></span><span id="s2"></span>
+              <span id="s3"></span><span id="s4"></span>
+            </div>
+            <div class="strength-label" id="strength-label"></div>
+
+            <label for="reg-confirm">Confirm password</label>
+            <input id="reg-confirm" name="confirm_password" type="password"
+              autocomplete="new-password" required />
+
+            <div class="form-error" id="signup-error"
+              style="display:none"></div>
+
+            <button type="submit">Create account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="module"
+    src="{{ url_for('static', filename='js/login.js') }}"></script>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apiary Manager | Queens</title>
+    <link rel="icon" type="image/x-icon"
+      href="http://127.0.0.1:5000/static/images/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/queens.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <a class="logo" href="#">
+            <span class="logo-icon">🐝</span>
+            <span class="logo-text">MyHive</span>
+          </a>
+          <button id="toggle-sidebar" title="Toggle sidebar">&#9776;</button>
+        </div>
+        <nav>
+          <ul>
+            <li>
+              <a href="{{ url_for('dashboard') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3"
+                      width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" /><rect x="3"
+                      y="14" width="7" height="7" />
+                  </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('hives_page') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </span>
+                <span class="nav-label">Hives</span>
+              </a>
+            </li>
+            <li class="active">
+              <a href="{{ url_for('queens_page') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 18l2-10 4 4 3-6 3 6 4-4 2 10z" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </svg>
+                </span>
+                <span class="nav-label">Queens</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('locations') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <span class="nav-label">Locations</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('inspections') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                    <rect x="9" y="3" width="6" height="4" rx="2" />
+                    <line x1="9" y1="12" x2="15" y2="12" /><line x1="9" y1="16"
+                      x2="13" y2="16" />
+                  </svg>
+                </span>
+                <span class="nav-label">Inspections</span>
+              </a>
+            </li>
+            <li class="nav-logout">
+              <a href="{{ url_for('logout') }}">
+                <span class="nav-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </span>
+                <span class="nav-label">Log out</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <button class="sidebar-expand" id="expand-sidebar"
+          title="Expand sidebar">›</button>
+      </aside>
+
+      <main class="content">
+        <div id="top-bar">
+          <header>
+            <h1>Queens</h1>
+            <div class="queens-header-actions">
+              <button class="btn-primary btn-secondary" type="button"
+                id="add-queen-btn">Add Queen</button>
+              <a class="btn-primary btn-ghost" href="{{ url_for('hives_page') }}">Manage hives</a>
+            </div>
+          </header>
+          <div class="stats-strip">
+            <div class="stat-item">
+              <span class="stat-label">Total Queens</span>
+              <span class="stat-value">{{ total_queens }}</span>
+            </div>
+            <div class="stat-item stat-queened">
+              <span class="stat-label">Assigned</span>
+              <span class="stat-value">{{ assigned_queens }}</span>
+            </div>
+            <div class="stat-item stat-unqueened">
+              <span class="stat-label">Unassigned</span>
+              <span class="stat-value">{{ unassigned_queens }}</span>
+            </div>
+            <div class="stat-item stat-locations">
+              <span class="stat-label">Locations</span>
+              <span class="stat-value">{{ grouped_queens|length }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-body">
+          {% if grouped_queens %}
+            <section class="queens-locations-grid">
+              {% for group in grouped_queens %}
+                <article class="location-queen-card">
+                  <div class="location-queen-header">
+                    <h2>{{ group.location }}</h2>
+                    <span class="queen-count">{{ group.queens|length }} queen{{ "" if group.queens|length == 1 else "s" }}</span>
+                  </div>
+                  <div class="queen-list">
+                    {% for queen in group.queens %}
+                      <div class="queen-row" data-queen-id="{{ queen.id }}"
+                        data-queen-breed="{{ queen.breed }}"
+                        data-queen-colour="{{ queen.colour }}"
+                        data-queen-intro-date="{{ queen.intro_date if queen.intro_date else '' }}">
+                        <div class="queen-id">Queen #{{ queen.id }}</div>
+                        <div class="queen-meta">
+                          <span>Breed: {{ queen.breed }}</span>
+                          <span>Colour: {{ queen.colour }}</span>
+                          <span>Introduced: {{ queen.intro_date if queen.intro_date else "N/A" }}</span>
+                          <span>Hive: {{ queen.hive_name if queen.hive_name else "Unassigned" }}</span>
+                        </div>
+                        <div class="queen-actions">
+                          <button class="btn-primary btn-ghost btn-sm queen-edit-btn"
+                            type="button">Edit</button>
+                          <button class="btn-danger btn-sm queen-remove-btn"
+                            type="button">Remove</button>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </article>
+              {% endfor %}
+            </section>
+          {% else %}
+            <section class="empty-state">
+              <strong>No queens found</strong>
+              <p>Add or move queens from the hives page to see them here.</p>
+            </section>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+
+    <div class="overlay" id="edit-queen-overlay">
+      <form id="edit-queen-popup">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#edit-queen-overlay">✕</button>
+        <h3>Edit Queen</h3>
+        <input type="hidden" id="edit-queen-id">
+        <label>
+          Breed
+          <input id="edit-queen-breed" placeholder="Leave blank if unknown">
+        </label>
+        <label>
+          Colour
+          <input id="edit-queen-colour"
+            placeholder="Leave blank if uncoloured">
+        </label>
+        <label>
+          Introduction Date
+          <input id="edit-queen-intro-date" type="date">
+        </label>
+        <button class="btn-primary btn-secondary" type="submit">Save
+          Changes</button>
+      </form>
+    </div>
+
+    <div class="overlay" id="add-queen-overlay">
+      <form id="add-queen-popup">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#add-queen-overlay">✕</button>
+        <h3>Add Queen</h3>
+        <label>
+          Breed
+          <input id="add-queen-breed" placeholder="Leave blank if unknown">
+        </label>
+        <label>
+          Colour
+          <input id="add-queen-colour" placeholder="Leave blank if uncoloured">
+        </label>
+        <label>
+          Introduction Date
+          <input id="add-queen-intro-date" type="date">
+        </label>
+        <button class="btn-primary btn-secondary" type="submit">Add Queen</button>
+      </form>
+    </div>
+
+    <div class="overlay" id="remove-queen-overlay">
+      <div id="remove-queen-popup" class="popup">
+        <button class="popup-close-btn" type="button"
+          data-overlay="#remove-queen-overlay">✕</button>
+        <h3>Remove Queen</h3>
+        <p>Are you sure you want to remove <strong id="remove-queen-name">this
+            queen</strong>? This unassigns her from any hive.</p>
+        <div class="popup-actions">
+          <button class="btn-primary btn-ghost" type="button"
+            id="cancel-remove-queen">Cancel</button>
+          <button class="btn-danger" type="button"
+            id="confirm-remove-queen">Remove Queen</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module"
+      src="{{ url_for('static', filename='js/queens.js') }}"></script>
+  </body>
+</html>

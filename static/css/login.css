@@ -1,0 +1,248 @@
+/* ── Design tokens (mirrors your style.css variables) ── */
+:root {
+    --navy: #0f2744;
+    --navy-mid: #163659;
+    --gold: #f5a623;
+    --gold-light: rgba(245, 166, 35, .18);
+    --surface: #ffffff;
+    --surface-2: #f3f4f6;
+    --border-strong: #d1d5db;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --red-bg: #fef2f2;
+    --red-text: #b91c1c;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-xl: 16px;
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, .18);
+    --transition: .18s ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+/* ── Page ── */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(160deg,
+            var(--navy) 0%,
+            var(--navy-mid) 45%,
+            #1e4a6b 100%);
+}
+
+/* ── Card ── */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 36px 32px 32px;
+}
+
+/* ── Brand ── */
+.login-brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-brand .logo-icon {
+    font-size: 40px;
+    line-height: 1;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.login-brand h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -.4px;
+}
+
+.login-brand p {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* ── Tab switcher ── */
+.tab-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    margin-bottom: 24px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.tab-btn.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .10);
+}
+
+/* ── Panels ── */
+.form-panel {
+    display: none;
+}
+
+.form-panel.visible {
+    display: block;
+}
+
+/* ── Shared form styles ── */
+.login-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 16px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-light);
+}
+
+.login-form button[type="submit"] {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: filter var(--transition), transform .1s ease;
+}
+
+.login-form button[type="submit"]:hover {
+    filter: brightness(1.05);
+}
+
+.login-form button[type="submit"]:active {
+    transform: scale(.99);
+}
+
+/* ── Password strength ── */
+.strength-bar {
+    display: flex;
+    gap: 4px;
+    margin: -10px 0 16px;
+}
+
+.strength-bar span {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border-strong);
+    transition: background .25s ease;
+}
+
+.strength-bar span.weak {
+    background: #ef4444;
+}
+
+.strength-bar span.fair {
+    background: #f59e0b;
+}
+
+.strength-bar span.good {
+    background: #10b981;
+}
+
+.strength-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: -12px 0 16px;
+    min-height: 16px;
+}
+
+/* ── Flash / validation messages ── */
+.login-flash,
+.form-error {
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    margin-bottom: 16px;
+    background: var(--red-bg);
+    color: var(--red-text);
+    border: 1px solid rgba(239, 68, 68, .25);
+}
+
+/* ── Hint ── */
+.login-hint {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.45;
+}
+
+.login-hint code {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+/* ── Side-by-side field pair ── */
+.field-row {
+    display: flex;
+    gap: 12px;
+}
+
+.field-row>* {
+    flex: 1;
+}
