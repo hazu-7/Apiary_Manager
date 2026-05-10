@@ -77,6 +77,7 @@
 ## Ek Notlar
 
 - Uygulama SQLite veritabanı kullanır ve `MyHive.db` dosyası oluşturulacaktır.
+- Varsayılan kullanıcının adı 'admin'
 - Yüklenen dosyalar `static/uploads/` klasöründe saklanır.
 - Oturum süresi 14 gündür.
 
