@@ -1,11 +1,17 @@
-# Kurulum Adımları ve Çalıştırma Talimatları
+# MyHive: Bir Arıcılık Yönetim Çözümü
 
-## Gereksinimler
+## Tanıtım
+
+MyHive, çeşitli konumlara yayılmış her sayıda kovanda gerçekleştirilen tüm değişiklikleri takip etme sorununa yönelik hepsi bir arada esnek bir çözümdür. MyHive, kovan denetimi sırasında yapılan tüm eylemleri günlüğe kaydetmek için uzak kaynakları kullanan sezgisel, duyarlı bir kullanıcı arayüzü sağlayarak bunu başarır.
+
+## Kurulum Adımları ve Çalıştırma Talimatları
+
+### Gereksinimler
 
 - Python 3.7 veya üzeri
 - pip (Python paket yöneticisi)
 
-## Kurulum Adımları
+### Kurulum Adımları
 
 1. **Repoyu Klonlayın:**
 
