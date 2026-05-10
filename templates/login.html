@@ -32,20 +32,21 @@
             account</button>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="login-flash" role="alert">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
         <!-- SIGN IN -->
         <div class="form-panel visible" id="panel-signin" role="tabpanel"
           aria-labelledby="tab-signin">
           <form class="login-form" method="post"
             action="{{ url_for('login') }}">
             <input type="hidden" name="next" value="{{ next or '' }}" />
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            {% if category == "error" %}
+            <div class="login-flash" role="alert">{{ message }}</div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
 
             <label for="username">Username</label>
             <input id="username" name="username" type="text"

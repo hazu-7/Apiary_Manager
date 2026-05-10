@@ -1,2 +1,5 @@
-instance/project.db
 static/uploads/*
+.Apiary_env/
+__pycache__/
+.vscode/
+instance/

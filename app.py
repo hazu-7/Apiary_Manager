@@ -20,19 +20,19 @@ import shutil
 
 app = Flask(__name__)
 CORS(app)
+# define Upload_path variable
 UPLOAD_PATH = "static/uploads"
 app.config["UPLOAD_PATH"] = UPLOAD_PATH
+# Creates the directory for uploaded files if it doesnt exist
 os.makedirs(app.config["UPLOAD_PATH"], exist_ok=True)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
-app.config["SECRET_KEY"] = os.environ.get(
-    "SECRET_KEY", "dev-insecure-change-for-production"
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///MyHive.db"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 db = SQLAlchemy(app)
 
 
 with app.app_context():
-
+    # Define Hive table in database
     class Hive(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -85,6 +85,7 @@ with app.app_context():
     db.create_all()
 
     try:
+        # If default hive image not in db add to db
         if not db.session.get(Image, 1):
             db.session.add(
                 Image(
@@ -100,6 +101,7 @@ with app.app_context():
         print("An error has occured!", e)
 
     if User.query.count() == 0:
+        # get inital password form environment. if not set default to admin
         initial_pw = os.environ.get("APIARY_INITIAL_PASSWORD", "admin")
         db.session.add(
             User(
@@ -113,6 +115,7 @@ with app.app_context():
             "Set APIARY_INITIAL_PASSWORD or SECRET_KEY for production."
         )
 
+    # Redirects all requests to server to login page if user has no valid session id
     @app.before_request
     def require_login():
         if session.get("user_id") is not None:
@@ -348,7 +351,7 @@ with app.app_context():
         data = request.get_json()
         breed = data.get("breed")
         colour = data.get("colour")
-        intro_date = data.get("intro_date") or data.get("introDate")
+        intro_date = data.get("intro_date")
         new_queen = Queen(
             user_id=session["user_id"],
             breed=breed,
@@ -371,10 +374,27 @@ with app.app_context():
             return jsonify({"message": "Queen not found"}), 404
 
         data = request.get_json() or {}
+        uid = session.get("user_id")
+        target_hive = None
+        if "hive_id" in data:
+            target_hive_id = data.get("hive_id")
+            if target_hive_id is not None:
+                target_hive = db.session.get(Hive, int(target_hive_id))
+                if target_hive is None or target_hive.user_id != uid:
+                    return jsonify({"message": "Hive not found"}), 404
+
         try:
             queen.breed = data.get("breed", queen.breed)
             queen.colour = data.get("colour", queen.colour)
             queen.intro_date = data.get("intro_date", queen.intro_date)
+
+            if "hive_id" in data:
+                assigned = Hive.query.filter_by(user_id=uid, queen_id=queen.id).all()
+                for hive in assigned:
+                    hive.queen_id = None
+                if target_hive is not None:
+                    target_hive.queen_id = queen.id
+
             db.session.commit()
             return jsonify({"success": True, "message": "Queen updated"}), 200
         except Exception as e:
@@ -384,7 +404,6 @@ with app.app_context():
 
     @app.route("/api/queen/remove/<int:queen_id>", methods=["DELETE"])  # TBI
     def remove_queen(queen_id):
-        print("hello")
         queen_to_remove = db.session.get(Queen, queen_id)
         if not queen_to_remove or queen_to_remove.user_id != session.get("user_id"):
             return jsonify({"message": "Queen not found"}), 404
@@ -567,55 +586,7 @@ with app.app_context():
 
     @app.route("/queens")
     def queens_page():
-        user = db.session.get(User, session["user_id"])
-        if not user:
-            return redirect(url_for("login"))
-
-        hive_by_queen_id = {hive.queen_id: hive for hive in user.hives if hive.queen_id}
-        grouped = {}
-
-        for queen in user.queens:
-            hive = hive_by_queen_id.get(queen.id)
-            location_name = "Unassigned"
-            hive_name = None
-            if hive:
-                location_name = (
-                    hive.at_location.name
-                    if hive.at_location and hive.at_location.name
-                    else "No Location"
-                )
-                hive_name = hive.name or f"Hive {hive.id}"
-
-            queen_data = {
-                "id": queen.id,
-                "breed": queen.breed or "Unknown",
-                "colour": queen.colour or "Uncoloured",
-                "intro_date": queen.intro_date or "",
-                "hive_name": hive_name,
-            }
-            grouped.setdefault(location_name, []).append(queen_data)
-
-        grouped_queens = [
-            {
-                "location": location,
-                "queens": sorted(queens, key=lambda item: item["id"]),
-            }
-            for location, queens in sorted(
-                grouped.items(), key=lambda item: item[0].lower()
-            )
-        ]
-
-        total_queens = len(user.queens)
-        assigned_queens = len(
-            [queen for queen in user.queens if queen.id in hive_by_queen_id]
-        )
-        return render_template(
-            "queens.html",
-            grouped_queens=grouped_queens,
-            total_queens=total_queens,
-            assigned_queens=assigned_queens,
-            unassigned_queens=total_queens - assigned_queens,
-        )
+        return render_template("queens.html")
 
     @app.route("/inspections")
     def inspections():
@@ -627,4 +598,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

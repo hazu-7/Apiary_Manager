@@ -64,11 +64,21 @@ document.querySelector("#reg-password").addEventListener("input", (e) => {
 
 document.querySelector("#signup-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  validateSignup();
+  if (!validateSignup()) return;
+
+  const err = document.getElementById("signup-error");
   const username = e.target.querySelector("#reg-username").value;
   const email = e.target.querySelector("#reg-email").value;
   const password = e.target.querySelector("#reg-password").value;
-  console.log(await addUser(username, email, password));
+
+  const result = await addUser(username, email, password);
+  if (!result.success) {
+    err.textContent = result.message;
+    err.style.display = "block";
+    return;
+  }
+
+  err.style.display = "none";
   e.target.reset();
   location.reload();
 });

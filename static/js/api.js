@@ -190,11 +190,17 @@ export async function addUser(username, email, password) {
     const result = await response.json();
     if (!response.ok) {
       console.error("Server error:", result.message);
-      return false;
+      return {
+        success: false,
+        message: result.message || "Unable to create account.",
+      };
     }
-    return true;
+    return { success: true, message: "Account created." };
   } catch (error) {
     console.error("Network error: ", error);
-    return false;
+    return {
+      success: false,
+      message: "Network error. Please try again.",
+    };
   }
 }

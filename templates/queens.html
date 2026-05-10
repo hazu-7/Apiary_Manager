@@ -131,64 +131,24 @@
           <div class="stats-strip">
             <div class="stat-item">
               <span class="stat-label">Total Queens</span>
-              <span class="stat-value">{{ total_queens }}</span>
+              <span class="stat-value" id="stat-total-queens">0</span>
             </div>
             <div class="stat-item stat-queened">
               <span class="stat-label">Assigned</span>
-              <span class="stat-value">{{ assigned_queens }}</span>
+              <span class="stat-value" id="stat-assigned-queens">0</span>
             </div>
             <div class="stat-item stat-unqueened">
               <span class="stat-label">Unassigned</span>
-              <span class="stat-value">{{ unassigned_queens }}</span>
+              <span class="stat-value" id="stat-unassigned-queens">0</span>
             </div>
             <div class="stat-item stat-locations">
               <span class="stat-label">Locations</span>
-              <span class="stat-value">{{ grouped_queens|length }}</span>
+              <span class="stat-value" id="stat-queen-locations">0</span>
             </div>
           </div>
         </div>
 
-        <div class="page-body">
-          {% if grouped_queens %}
-            <section class="queens-locations-grid">
-              {% for group in grouped_queens %}
-                <article class="location-queen-card">
-                  <div class="location-queen-header">
-                    <h2>{{ group.location }}</h2>
-                    <span class="queen-count">{{ group.queens|length }} queen{{ "" if group.queens|length == 1 else "s" }}</span>
-                  </div>
-                  <div class="queen-list">
-                    {% for queen in group.queens %}
-                      <div class="queen-row" data-queen-id="{{ queen.id }}"
-                        data-queen-breed="{{ queen.breed }}"
-                        data-queen-colour="{{ queen.colour }}"
-                        data-queen-intro-date="{{ queen.intro_date if queen.intro_date else '' }}">
-                        <div class="queen-id">Queen #{{ queen.id }}</div>
-                        <div class="queen-meta">
-                          <span>Breed: {{ queen.breed }}</span>
-                          <span>Colour: {{ queen.colour }}</span>
-                          <span>Introduced: {{ queen.intro_date if queen.intro_date else "N/A" }}</span>
-                          <span>Hive: {{ queen.hive_name if queen.hive_name else "Unassigned" }}</span>
-                        </div>
-                        <div class="queen-actions">
-                          <button class="btn-primary btn-ghost btn-sm queen-edit-btn"
-                            type="button">Edit</button>
-                          <button class="btn-danger btn-sm queen-remove-btn"
-                            type="button">Remove</button>
-                        </div>
-                      </div>
-                    {% endfor %}
-                  </div>
-                </article>
-              {% endfor %}
-            </section>
-          {% else %}
-            <section class="empty-state">
-              <strong>No queens found</strong>
-              <p>Add or move queens from the hives page to see them here.</p>
-            </section>
-          {% endif %}
-        </div>
+        <div class="page-body" id="queens-content"></div>
       </main>
     </div>
 
@@ -210,6 +170,10 @@
         <label>
           Introduction Date
           <input id="edit-queen-intro-date" type="date">
+        </label>
+        <label>
+          Assign to hive
+          <select id="edit-queen-hive"><option value="">Unassigned</option></select>
         </label>
         <button class="btn-primary btn-secondary" type="submit">Save
           Changes</button>
