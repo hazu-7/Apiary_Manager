@@ -17,6 +17,10 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 import shutil
+import dotenv
+
+# Load environment variables from .env file if it exists
+dotenv.load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +30,7 @@ app.config["UPLOAD_PATH"] = UPLOAD_PATH
 # Creates the directory for uploaded files if it doesnt exist
 os.makedirs(app.config["UPLOAD_PATH"], exist_ok=True)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///MyHive.db"
+# get secret key from environment variable. if not set default to mysecret
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 db = SQLAlchemy(app)
@@ -46,6 +51,7 @@ with app.app_context():
         name = db.Column(db.String(120))
         notes = db.Column(db.String(500), default="")
 
+    # Define Queen table in database
     class Queen(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -54,6 +60,7 @@ with app.app_context():
         intro_date = db.Column(db.String(120), default=db.func.current_date())
         colour = db.Column(db.String(20))
 
+    # Define Location table in database
     class Location(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -68,11 +75,13 @@ with app.app_context():
 
         max_number_of_hives = db.Column(db.Integer, default=0)
 
+    # Define Image table in database
     class Image(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         path = db.Column(db.String(200))
         image = db.relationship("Hive", backref="image_info", lazy=True)
 
+    # Define User table in database
     class User(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(80), unique=True, nullable=False)
@@ -82,6 +91,7 @@ with app.app_context():
         locations = db.relationship("Location", backref="owner")
         queens = db.relationship("Queen", backref="owner")
 
+    # Create tables in database if they dont exist
     db.create_all()
 
     try:
@@ -102,7 +112,7 @@ with app.app_context():
 
     if User.query.count() == 0:
         # get inital password form environment. if not set default to admin
-        initial_pw = os.environ.get("APIARY_INITIAL_PASSWORD", "admin")
+        initial_pw = os.environ.get("INITIAL_PASSWORD", "admin")
         db.session.add(
             User(
                 username="admin",
@@ -112,7 +122,7 @@ with app.app_context():
         db.session.commit()
         print(
             "Created default user 'admin'. "
-            "Set APIARY_INITIAL_PASSWORD or SECRET_KEY for production."
+            "Set INITIAL_PASSWORD or SECRET_KEY for production."
         )
 
     # Redirects all requests to server to login page if user has no valid session id

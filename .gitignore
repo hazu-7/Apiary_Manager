@@ -3,3 +3,4 @@ static/uploads/*
 __pycache__/
 .vscode/
 instance/
+.env
