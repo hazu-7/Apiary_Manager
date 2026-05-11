@@ -54,7 +54,6 @@ function updateStats(data = hives) {
 // ── Render hive cards ────────────────────────────────────────
 async function renderHives(data = hives) {
   const container = document.getElementById("hive-grid");
-  console.log(data);
   if (data.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -325,15 +324,7 @@ function getHiveInspectionDate(hive) {
 }
 
 async function updateHiveQueen(hive, queenID) {
-  return updateHiveData(
-    hive.id,
-    hive.name,
-    hive.location_id,
-    hive.box_size,
-    hive.frames,
-    getHiveInspectionDate(hive),
-    queenID,
-  );
+  return updateHiveData(hive.id, hive.name, hive.location_id, hive.box_size, hive.frames, getHiveInspectionDate(hive), queenID);
 }
 
 function populateMoveQueenOptions(context) {
@@ -390,11 +381,7 @@ document.querySelector("#post-hive-popup").addEventListener("submit", async (e) 
   const addQueenAction = queenActions.add;
 
   if (addQueenAction.mode === "add" && addQueenAction.queenData) {
-    const queenResponse = await postQueen(
-      addQueenAction.queenData.breed,
-      addQueenAction.queenData.colour,
-      addQueenAction.queenData.introDate,
-    );
+    const queenResponse = await postQueen(addQueenAction.queenData.breed, addQueenAction.queenData.colour, addQueenAction.queenData.introDate);
     queenID = queenResponse.queen_id;
   } else if (addQueenAction.mode === "move" && addQueenAction.moveData) {
     const sourceHive = hives.find((item) => item.id === addQueenAction.moveData.moveFromHiveID);
@@ -527,11 +514,7 @@ document.querySelector("#edit-hive-popup").addEventListener("submit", async (e) 
   }
 
   if (editQueenAction.mode === "add" && editQueenAction.queenData) {
-    const queenResponse = await postQueen(
-      editQueenAction.queenData.breed,
-      editQueenAction.queenData.colour,
-      editQueenAction.queenData.introDate,
-    );
+    const queenResponse = await postQueen(editQueenAction.queenData.breed, editQueenAction.queenData.colour, editQueenAction.queenData.introDate);
     queenID = queenResponse.queen_id;
   } else if (editQueenAction.mode === "move" && editQueenAction.moveData) {
     const sourceHive = hives.find((item) => item.id === editQueenAction.moveData.moveFromHiveID);
