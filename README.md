@@ -42,13 +42,13 @@ MyHive, çeşitli konumlara yayılmış her sayıda kovanda gerçekleştirilen t
 
    #### **Windows (PowerShell):**
 
-   Sanal Ortamda SECRET_KEY değişkeni atayın (süslü parantez arasındaki metini değiştirin)
+   Sanal Ortamda SECRET_KEY değişkeni atayın ("mysecret"ı değiştirin)
 
    ```
    Add-Content .env "SECRET_KEY='mysecret'"
    ```
 
-   Sanal Ortamda otomatik oluşturan kullanıcının şifresini atayın (süslü parantez arasındaki metini değiştirin)
+   Sanal Ortamda otomatik oluşturan kullanıcının şifresini atayın ("mypassword"'ı değiştiriniz)
 
    ```
    Add-Content .env "INITIAL_PASSWORD='mypassword'"
