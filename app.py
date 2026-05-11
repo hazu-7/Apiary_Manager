@@ -121,7 +121,7 @@ with app.app_context():
         )
         db.session.commit()
         print(
-            "Created default user 'admin'. "
+            f"Created default user 'username : admin\npassword: {initial_pw}'.\n "
             "Set INITIAL_PASSWORD or SECRET_KEY for production."
         )
 
