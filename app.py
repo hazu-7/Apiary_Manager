@@ -31,7 +31,7 @@ app.config["UPLOAD_PATH"] = UPLOAD_PATH
 os.makedirs(app.config["UPLOAD_PATH"], exist_ok=True)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///MyHive.db"
 # get secret key from environment variable. if not set default to mysecret
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mysecret")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 db = SQLAlchemy(app)
 
