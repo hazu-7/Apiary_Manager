@@ -32,7 +32,6 @@ os.makedirs(app.config["UPLOAD_PATH"], exist_ok=True)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///MyHive.db"
 # get secret key from environment variable. if not set default to mysecret
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mysecret")
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=14)
 db = SQLAlchemy(app)
 
 
@@ -136,31 +135,32 @@ with app.app_context():
             return
         if request.path.startswith("/api/"):
             return jsonify({"message": "Unauthorized"}), 401
-        return redirect(url_for("login", next=request.path))
+        return redirect(url_for("login"))
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if session.get("user_id") is not None:
             return redirect(url_for("dashboard"))
+
         if request.method == "POST":
-            username = (request.form.get("username") or "").strip()
-            password = request.form.get("password") or ""
+            username = (request.form.get("username")).strip()
+            password = request.form.get("password")
             user = User.query.filter_by(username=username).first()
+
             if user and check_password_hash(user.password_hash, password):
                 session["user_id"] = user.id
                 session.permanent = True
-                next_path = request.form.get("next") or request.args.get("next")
-                if (
-                    next_path
-                    and next_path.startswith("/")
-                    and not next_path.startswith("//")
-                ):
-                    return redirect(next_path)
-                return redirect(url_for("dashboard"))
-            flash("Invalid username or password.", "error")
-        return render_template(
-            "login.html",
-        )
+                target = url_for("dashboard")
+                if "application/json" in request.accept_mimetypes:
+                    return jsonify({"success": True, "redirect": target})
+
+            message = "Invalid username or password."
+            if "application/json" in request.accept_mimetypes:
+                return jsonify({"success": False, "message": message}), 200
+
+            flash(message, "error")
+
+        return render_template("login.html")
 
     @app.route("/register", methods=["POST"])
     def register_user():
@@ -608,4 +608,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

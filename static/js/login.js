@@ -82,3 +82,26 @@ document.querySelector("#signup-form").addEventListener("submit", async (e) => {
   e.target.reset();
   location.reload();
 });
+
+document.querySelector("#panel-signin .login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+
+  const response = await fetch("/login", {
+    method: "POST",
+    body: formData,
+    headers: { Accept: "application/json" },
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    window.location.href = result.redirect;
+  } else {
+    // Show error in a div instead of alert
+    const errorDiv = document.querySelector(".login-flash") || document.createElement("div");
+    errorDiv.className = "login-flash";
+    errorDiv.textContent = result.message;
+    e.target.prepend(errorDiv);
+  }
+});
